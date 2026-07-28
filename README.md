@@ -7,6 +7,7 @@ A mobile-friendly monthly budget tracker — a single-page PWA with no build ste
 - Checklist budget: tick items as payments are made; items with subtasks (e.g. Fees → school, Qari Sahib, Sipara) complete automatically when every subtask is checked
 - Extra-expense logging against any category, with a running "extra spent" total
 - Month archiving: starting a new month saves the finished month exactly as it was — checkmarks, extras and totals — browsable any time in a view-only history
+- Edit any item or subtask (name, amount, note) and reorder items with move up / down
 - Light / dark blue theme with a one-tap toggle (follows system preference by default)
 - Installable on the home screen (web app manifest + icons) and works offline after first load (service worker)
 

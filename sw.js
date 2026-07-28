@@ -1,5 +1,5 @@
 /* Monthly Budget — service worker: cache-first with background refresh */
-var CACHE = 'budget-cache-v1';
+var CACHE = 'budget-cache-v2';
 var ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
 
 self.addEventListener('install', function (e) {
