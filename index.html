@@ -27,7 +27,7 @@
     --cbBd:#B9C7DC; --cbBg:#FFFFFF;
     --doneBg:#EAF1FB; --doneBd:#CBDCF3; --doneTx:#7189A8;
     --ext:#0F87B8; --extD:#0B6A93; --extBg:#E4F3FA; --extBd:#BFE2F0; --extX:#8FC2D8;
-    --red:#D64848;
+    --red:#D64848; --ok:#1B8A5A;
     --field:#F1F5FB; --fieldBd:#D8E1EF; --sheet:#FDFEFF; --handle:#CBD6E5;
     --menuBg:#FFFFFF; --menuBd:#D8E1EF; --detailBd:#E7EDF7;
     --disp:'Space Grotesk','Inter',system-ui,sans-serif;
@@ -44,7 +44,7 @@
     --cbBd:#3C567C; --cbBg:#0F2138;
     --doneBg:#0F2C4C; --doneBd:#1F4573; --doneTx:#6C89AC;
     --ext:#3FB6E8; --extD:#6FCBF2; --extBg:#0D2B3D; --extBd:#155273; --extX:#3E7E9C;
-    --red:#E26352;
+    --red:#E26352; --ok:#43C795;
     --field:#0F2138; --fieldBd:#28405F; --sheet:#0F2036; --handle:#33496B;
     --menuBg:#132A49; --menuBd:#2A4A70; --detailBd:#20375A;
   }
@@ -201,6 +201,29 @@
   .hmeta{font-size:11.5px; color:var(--muted); margin-top:2px; font-variant-numeric:tabular-nums;}
   .hist-empty{font-size:13px; color:var(--muted); line-height:1.5; padding:8px 2px 4px; text-align:center;}
 
+  .over{color:var(--red) !important;}
+  .under{color:var(--ok) !important;}
+  .paidline{font-size:12px; color:var(--muted); padding-top:10px; line-height:1.45;}
+  .paidline b{font-family:var(--disp); font-variant-numeric:tabular-nums; color:var(--ink2); font-weight:600;}
+
+  .rp-wrap{max-height:58vh; overflow-y:auto; margin:0 -4px; padding:0 4px 4px;}
+  .rp-month{font-size:12px; color:var(--muted); margin:0 0 10px;}
+  .rp-tiles{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;}
+  .rp-tile{background:var(--field); border:1px solid var(--fieldBd); border-radius:12px; padding:10px 12px;}
+  .rp-tile span{display:block; font-size:10.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--muted);}
+  .rp-tile b{display:block; margin-top:3px; font-family:var(--disp); font-size:15px; font-weight:700;
+    font-variant-numeric:tabular-nums; color:var(--ink);}
+  .rp-h{font-family:var(--disp); font-size:13px; font-weight:700; color:var(--ink); margin:14px 0 4px;}
+  .rp-table{width:100%; border-collapse:collapse; font-size:12.5px;}
+  .rp-table th{text-align:right; font-size:10px; text-transform:uppercase; letter-spacing:.05em;
+    color:var(--muted); padding:6px 3px; font-weight:600;}
+  .rp-table th:first-child{text-align:left;}
+  .rp-table td{padding:7px 3px; border-top:1px solid var(--detailBd); text-align:right;
+    font-variant-numeric:tabular-nums; color:var(--ink2);}
+  .rp-table td:first-child{text-align:left; color:var(--ink); font-weight:500;}
+  .rp-table tr.tot td{border-top:2px solid var(--border); font-weight:700; color:var(--ink); font-family:var(--disp);}
+  .rp-note{font-size:11.5px; color:var(--muted); line-height:1.5; margin:10px 0 0;}
+
   .chip[disabled]{opacity:.35;}
   button[disabled]{cursor:default;}
 
@@ -339,13 +362,31 @@
       <input id="ed-amt" type="text" inputmode="numeric" autocomplete="off">
     </label>
   </div>
-  <p class="hint" id="ed-derived" hidden>This item's amount is calculated automatically from its subtasks — edit the subtasks to change it.</p>
+  <div id="ed-actual-wrap">
+    <label class="field"><span>Actual paid (Rs)</span>
+      <input id="ed-actual" type="text" inputmode="numeric" placeholder="Leave empty if you paid the budget amount" autocomplete="off">
+    </label>
+    <p class="hint">Paid more or less than planned? Put the real figure here — it counts towards your totals and report, and ticks the item as paid.</p>
+  </div>
+  <p class="hint" id="ed-derived" hidden>This item's amount and actual payment are calculated automatically from its subtasks — edit the subtasks to change them.</p>
   <div id="ed-note-wrap">
     <label class="field"><span>Note (optional)</span>
       <input id="ed-note" type="text" placeholder="e.g. Utilities · Groceries" autocomplete="off">
     </label>
   </div>
   <button class="btn-submit" onclick="A.submitEdit()">Save changes</button>
+</div>
+
+<!-- report -->
+<div class="sheet" id="sheet-report">
+  <div class="handle"></div>
+  <div class="sheet-head">
+    <h3>Report</h3>
+    <button class="icobtn" onclick="A.closeSheets()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div class="rp-wrap" id="rp-body"></div>
 </div>
 
 <!-- past months -->
@@ -418,6 +459,8 @@ var IC = {
   history: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 9"/><polyline points="12 7 12 12 15 15"/></svg>',
   receipt: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2.5-1.5L9 22l2.5-1.5L14 22l2.5-1.5L19 22V2l-2.5 1.5L14 2l-2.5 1.5L9 2 6.5 3.5 4 2z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
   listplus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="13" y2="6"/><line x1="3" y1="12" x2="13" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/><line x1="18" y1="9" x2="18" y2="15"/><line x1="15" y1="12" x2="21" y2="12"/></svg>',
+  cash: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>',
+  chart: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="5"/><line x1="18" y1="20" x2="18" y2="10"/></svg>',
   pencil: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
   up: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>',
   down: '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><polyline points="19 12 12 19 5 12"/></svg>',
@@ -514,24 +557,40 @@ function tDone(t) {
   if (t.subtasks.length) return t.subtasks.every(function (x) { return x.done; });
   return !!t.done;
 }
-function tPaid(t) {
+function unitPaid(o) { return (o.actual === null || o.actual === undefined) ? (o.amount || 0) : o.actual; }
+function tPaid(t) {  /* what actually left the pocket */
+  if (t.subtasks.length) {
+    var s = 0; t.subtasks.forEach(function (x) { if (x.done) s += unitPaid(x); }); return s;
+  }
+  return t.done ? unitPaid(t) : 0;
+}
+function tPlanned(t) {  /* budget of the portion already paid */
   if (t.subtasks.length) {
     var s = 0; t.subtasks.forEach(function (x) { if (x.done) s += x.amount || 0; }); return s;
   }
   return t.done ? (t.amount || 0) : 0;
 }
+function tLeft(t) {  /* budget still outstanding */
+  if (t.subtasks.length) {
+    var s = 0; t.subtasks.forEach(function (x) { if (!x.done) s += x.amount || 0; }); return s;
+  }
+  return t.done ? 0 : (t.amount || 0);
+}
 function tExtra(t) {
   var s = 0; (t.expenses || []).forEach(function (e) { s += e.amount || 0; }); return s;
 }
 function monthTotals(m) {
-  var total = 0, paid = 0, extra = 0, doneCount = 0;
+  var total = 0, paid = 0, planned = 0, remaining = 0, extra = 0, doneCount = 0;
   m.tasks.forEach(function (t) {
-    total += tAmt(t); paid += tPaid(t); extra += tExtra(t);
+    total += tAmt(t); paid += tPaid(t); planned += tPlanned(t);
+    remaining += tLeft(t); extra += tExtra(t);
     if (tDone(t)) doneCount++;
   });
-  return { total: total, paid: paid, extra: extra, doneCount: doneCount,
-    remaining: Math.max(total - paid, 0),
-    pct: total ? Math.round(paid / total * 100) : 0 };
+  return { total: total, paid: paid, planned: planned, extra: extra, doneCount: doneCount,
+    diff: paid - planned,           /* + = paid over budget, - = saved */
+    spent: paid + extra,
+    remaining: remaining,
+    pct: total ? Math.min(Math.round(planned / total * 100), 100) : 0 };
 }
 function activeMonth() {
   if (viewing) {
@@ -550,6 +609,7 @@ function renderHero(m, ro) {
   if (ro) {
     rightHtml =
       '<span class="savemsg">Saved ' + esc(dstrShort(m.savedAt)) + '</span>' +
+      '<button class="icobtn" onclick="A.openReport()" aria-label="Report">' + IC.chart + '</button>' +
       '<button class="icobtn" onclick="A.toggleTheme()" aria-label="Switch theme">' + (isDark() ? IC.sun : IC.moon) + '</button>';
   } else {
     rightHtml =
@@ -563,6 +623,7 @@ function renderHero(m, ro) {
     menuHtml =
       '<div class="mclose" onclick="A.toggleMenu()"></div>' +
       '<div class="menu-pop">' +
+        '<button onclick="A.openReport()">' + IC.chart + ' Report</button>' +
         '<button onclick="A.openHistory()">' + IC.history + ' Past months' +
           (data.archive.length ? ' (' + data.archive.length + ')' : '') + '</button>' +
         '<button onclick="A.openMonth()">' + IC.refresh + ' Start new month</button>' +
@@ -577,7 +638,10 @@ function renderHero(m, ro) {
     menuHtml +
     '<div class="eyebrow">Left to pay</div>' +
     '<div class="big">' + fmt(s.remaining) + '</div>' +
-    '<div class="hero-sub">of ' + fmt(s.total) + ' budget · ' + s.pct + '% paid</div>' +
+    '<div class="hero-sub">of ' + fmt(s.total) + ' budget · ' + s.pct + '% paid' +
+      (s.diff !== 0
+        ? ' · <b>' + (s.diff > 0 ? fmtS(s.diff) + ' over' : fmtS(-s.diff) + ' under') + ' budget</b>'
+        : '') + '</div>' +
     '<div class="bar"><i style="width:' + s.pct + '%"></i></div>' +
     '<div class="stats">' +
       '<div class="stat"><span>Paid</span><b>' + fmtS(s.paid) + '</b></div>' +
@@ -589,6 +653,7 @@ function renderHero(m, ro) {
 function cardHtml(t, ro, idx, count) {
   var hasSubs = t.subtasks.length > 0;
   var amt = tAmt(t), done = tDone(t), extra = tExtra(t);
+  var paidAmt = tPaid(t), plannedAmt = tPlanned(t), diff = paidAmt - plannedAmt;
   var paidCount = t.subtasks.filter(function (s) { return s.done; }).length;
   var part = hasSubs && paidCount > 0 && !done;
   var open = !!expanded[t.id];
@@ -611,6 +676,10 @@ function cardHtml(t, ro, idx, count) {
         cbHtml +
         '<div class="grow"><div class="name">' + esc(t.name) + '</div>' + meta + '</div>' +
         '<div class="right"><div class="amt">' + fmt(amt) + '</div>' +
+          (diff !== 0
+            ? '<div class="xtra ' + (diff > 0 ? 'over' : 'under') + '">' +
+                (diff > 0 ? '+' + fmtS(diff) + ' over' : fmtS(-diff) + ' under') + '</div>'
+            : '') +
           (extra > 0 ? '<div class="xtra">+' + fmtS(extra) + ' extra</div>' : '') +
         '</div>' +
         '<span class="chevwrap' + (open ? ' rot' : '') + '">' + IC.chev + '</span>' +
@@ -619,6 +688,14 @@ function cardHtml(t, ro, idx, count) {
   if (open) {
     h += '<div class="detail">';
     if (t.note) h += '<div class="note">' + esc(t.note) + '</div>';
+    if (paidAmt > 0) {
+      h += '<div class="paidline">Actually paid <b>' + fmt(paidAmt) + '</b>' +
+        (diff !== 0
+          ? ' · budget was ' + fmt(plannedAmt) +
+            ' <b class="' + (diff > 0 ? 'over' : 'under') + '">(' +
+            (diff > 0 ? '+' + fmtS(diff) : '−' + fmtS(-diff)) + ')</b>'
+          : '') + '</div>';
+    }
 
     if (hasSubs) {
       h += '<div class="subs">';
@@ -655,6 +732,7 @@ function cardHtml(t, ro, idx, count) {
 
     if (!ro) {
       h += '<div class="acts">' +
+        (hasSubs ? '' : '<button class="chip" onclick="A.openEdit(\'' + t.id + '\',1)">' + IC.cash + ' Paid amount</button>') +
         '<button class="chip" onclick="A.openSub(\'' + t.id + '\')">' + IC.listplus + ' Subtask</button>' +
         '<button class="chip ext" onclick="A.openExpense(\'' + t.id + '\')">' + IC.receipt + ' Expense</button>' +
         '<span class="sp"></span>' +
@@ -696,6 +774,67 @@ function render() {
 
   renderHero(m, ro);
   renderList(m, ro);
+}
+
+/* ================= report sheet ================= */
+function renderReport() {
+  var m = activeMonth();
+  var s = monthTotals(m);
+  var h = '<p class="rp-month">' + esc(m.month) + (viewing ? ' · saved record' : '') + '</p>';
+
+  h += '<div class="rp-tiles">' +
+    '<div class="rp-tile"><span>Budget</span><b>' + fmt(s.total) + '</b></div>' +
+    '<div class="rp-tile"><span>Paid so far</span><b>' + fmt(s.paid) + '</b></div>' +
+    '<div class="rp-tile"><span>Extra expenses</span><b>' + fmt(s.extra) + '</b></div>' +
+    '<div class="rp-tile"><span>Total out of pocket</span><b>' + fmt(s.spent) + '</b></div>' +
+  '</div>';
+
+  h += '<div class="rp-tiles" style="grid-template-columns:1fr">' +
+    '<div class="rp-tile"><span>Against budget on what you have paid</span><b class="' +
+      (s.diff > 0 ? 'over' : (s.diff < 0 ? 'under' : '')) + '">' +
+      (s.diff > 0 ? fmt(s.diff) + ' over' : (s.diff < 0 ? fmt(-s.diff) + ' under' : 'Exactly on budget')) +
+    '</b></div>' +
+  '</div>';
+
+  h += '<div class="rp-h">Item by item</div>' +
+    '<table class="rp-table"><thead><tr>' +
+      '<th>Item</th><th>Budget</th><th>Paid</th><th>+/−</th>' +
+    '</tr></thead><tbody>';
+
+  m.tasks.forEach(function (t) {
+    var b = tAmt(t), p = tPaid(t), d = p - tPlanned(t);
+    h += '<tr>' +
+      '<td>' + esc(t.name) + '</td>' +
+      '<td>' + fmtS(b) + '</td>' +
+      '<td>' + (p ? fmtS(p) : '—') + '</td>' +
+      '<td class="' + (d > 0 ? 'over' : (d < 0 ? 'under' : '')) + '">' +
+        (d === 0 ? '—' : (d > 0 ? '+' + fmtS(d) : '−' + fmtS(-d))) + '</td>' +
+    '</tr>';
+  });
+
+  h += '<tr class="tot">' +
+    '<td>Total</td><td>' + fmtS(s.total) + '</td><td>' + fmtS(s.paid) + '</td>' +
+    '<td class="' + (s.diff > 0 ? 'over' : (s.diff < 0 ? 'under' : '')) + '">' +
+      (s.diff === 0 ? '—' : (s.diff > 0 ? '+' + fmtS(s.diff) : '−' + fmtS(-s.diff))) + '</td>' +
+  '</tr></tbody></table>';
+
+  var exp = [];
+  m.tasks.forEach(function (t) {
+    (t.expenses || []).forEach(function (e) { exp.push({ cat: t.name, e: e }); });
+  });
+  if (exp.length) {
+    h += '<div class="rp-h">Extra expenses</div>' +
+      '<table class="rp-table"><thead><tr><th>What</th><th>Category</th><th>Amount</th></tr></thead><tbody>';
+    exp.forEach(function (x) {
+      h += '<tr><td>' + esc(x.e.desc) + '</td><td style="text-align:right;color:var(--muted)">' + esc(x.cat) + '</td>' +
+        '<td>' + fmtS(x.e.amount) + '</td></tr>';
+    });
+    h += '<tr class="tot"><td>Total extra</td><td></td><td>' + fmtS(s.extra) + '</td></tr></tbody></table>';
+  }
+
+  h += '<p class="rp-note">"Paid" is the real amount that left your pocket — the budget figure is used unless you record a different actual payment. Still to pay: <b>' + fmt(s.remaining) + '</b>.</p>';
+
+  document.getElementById('rp-body').innerHTML = h;
 }
 
 /* ================= history sheet ================= */
@@ -849,19 +988,22 @@ var A = {
     save(); render(); A.closeSheets();
   },
 
-  openEdit: function (tid) {
+  openEdit: function (tid, focusActual) {
     var t = data.current.tasks.find(function (x) { return x.id === tid; });
     if (!t) return;
     editCtx = { type: 'task', tid: tid };
-    document.getElementById('ed-title').textContent = 'Edit item';
-    document.getElementById('ed-name').value = t.name;
     var hasSubs = t.subtasks.length > 0;
+    document.getElementById('ed-title').textContent = focusActual ? 'Record actual payment' : 'Edit item';
+    document.getElementById('ed-name').value = t.name;
     document.getElementById('ed-amt-wrap').hidden = hasSubs;
+    document.getElementById('ed-actual-wrap').hidden = hasSubs;
     document.getElementById('ed-derived').hidden = !hasSubs;
     document.getElementById('ed-amt').value = hasSubs ? '' : (t.amount || 0);
+    document.getElementById('ed-actual').value =
+      (t.actual === null || t.actual === undefined) ? '' : t.actual;
     document.getElementById('ed-note-wrap').hidden = false;
     document.getElementById('ed-note').value = t.note || '';
-    openSheet('sheet-edit'); focusLater('ed-name');
+    openSheet('sheet-edit'); focusLater(focusActual ? 'ed-actual' : 'ed-name');
   },
   openEditSub: function (tid, sid) {
     var t = data.current.tasks.find(function (x) { return x.id === tid; });
@@ -871,8 +1013,11 @@ var A = {
     document.getElementById('ed-title').textContent = 'Edit subtask';
     document.getElementById('ed-name').value = s.name;
     document.getElementById('ed-amt-wrap').hidden = false;
+    document.getElementById('ed-actual-wrap').hidden = false;
     document.getElementById('ed-derived').hidden = true;
     document.getElementById('ed-amt').value = s.amount || 0;
+    document.getElementById('ed-actual').value =
+      (s.actual === null || s.actual === undefined) ? '' : s.actual;
     document.getElementById('ed-note-wrap').hidden = true;
     openSheet('sheet-edit'); focusLater('ed-name');
   },
@@ -882,13 +1027,26 @@ var A = {
     if (!name) { focusLater('ed-name'); return; }
     var t = data.current.tasks.find(function (x) { return x.id === editCtx.tid; });
     if (!t) { editCtx = null; A.closeSheets(); return; }
+    var rawActual = document.getElementById('ed-actual').value.trim();
+    var newActual = rawActual === '' ? null : parseAmt(rawActual);
     if (editCtx.type === 'task') {
       t.name = name;
       t.note = document.getElementById('ed-note').value.trim();
-      if (!t.subtasks.length) t.amount = parseAmt(document.getElementById('ed-amt').value);
+      if (!t.subtasks.length) {
+        t.amount = parseAmt(document.getElementById('ed-amt').value);
+        var had = !(t.actual === null || t.actual === undefined);
+        t.actual = newActual;
+        if (!had && newActual !== null) t.done = true;  /* recording a payment marks it paid */
+      }
     } else {
       var s = t.subtasks.find(function (x) { return x.id === editCtx.sid; });
-      if (s) { s.name = name; s.amount = parseAmt(document.getElementById('ed-amt').value); }
+      if (s) {
+        s.name = name;
+        s.amount = parseAmt(document.getElementById('ed-amt').value);
+        var hadS = !(s.actual === null || s.actual === undefined);
+        s.actual = newActual;
+        if (!hadS && newActual !== null) s.done = true;
+      }
     }
     editCtx = null;
     save(); render(); A.closeSheets();
@@ -922,13 +1080,19 @@ var A = {
     data.current.month = name;
     data.current.tasks.forEach(function (t) {
       t.done = false;
-      t.subtasks.forEach(function (s) { s.done = false; });
+      t.actual = null;
+      t.subtasks.forEach(function (s) { s.done = false; s.actual = null; });
       t.expenses = [];
     });
     expanded = {};
     save(); render(); A.closeSheets();
   },
 
+  openReport: function () {
+    menuOpen = false; render();
+    renderReport();
+    openSheet('sheet-report');
+  },
   openHistory: function () {
     menuOpen = false; armedArchive = null;
     render(); renderHistList();
