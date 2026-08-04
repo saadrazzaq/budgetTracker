@@ -13,6 +13,8 @@ A mobile-friendly monthly budget tracker — a single-page PWA with no build ste
 - Light / dark blue theme with a one-tap toggle (follows system preference by default)
 - Installable on the home screen (web app manifest + icons) and works offline after first load (service worker)
 
+- Backup and restore via a JSON file — also the way to move data between devices
+
 **Privacy:** all data is stored in the browser's localStorage on the user's own device. Nothing is sent anywhere.
 
 **Hosting:** plain static files — deploy the repo root on Vercel, Netlify or GitHub Pages with zero configuration.

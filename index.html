@@ -206,6 +206,13 @@
   .paidline{font-size:12px; color:var(--muted); padding-top:10px; line-height:1.45;}
   .paidline b{font-family:var(--disp); font-variant-numeric:tabular-nums; color:var(--ink2); font-weight:600;}
 
+  .bk-btn{width:100%; border-radius:14px; padding:12px 0; font-family:var(--disp); font-weight:600;
+    font-size:14px; display:flex; align-items:center; justify-content:center; gap:8px;
+    background:var(--field); border:1px solid var(--fieldBd); color:var(--ink); margin-bottom:10px;}
+  .bk-file{margin-top:5px; width:100%; border-radius:12px; padding:11px 12px; font-size:13px;
+    border:1px solid var(--fieldBd); background:var(--field); color:var(--ink);}
+  .bk-msg{font-size:12.5px; line-height:1.5; border-radius:12px; padding:10px 12px; margin:2px 0 10px;
+    background:var(--extBg); border:1px solid var(--extBd); color:var(--extD);}
   .rp-wrap{max-height:58vh; overflow-y:auto; margin:0 -4px; padding:0 4px 4px;}
   .rp-month{font-size:12px; color:var(--muted); margin:0 0 10px;}
   .rp-tiles{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;}
@@ -377,6 +384,27 @@
   <button class="btn-submit" onclick="A.submitEdit()">Save changes</button>
 </div>
 
+<!-- backup & restore -->
+<div class="sheet" id="sheet-backup">
+  <div class="handle"></div>
+  <div class="sheet-head">
+    <h3>Backup &amp; restore</h3>
+    <button class="icobtn" onclick="A.closeSheets()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <p class="hint">Your budget is stored on this device only. Download a backup file to keep it safe, or to move everything to another phone or laptop.</p>
+  <button class="bk-btn" onclick="A.exportData()">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Download backup file
+  </button>
+  <label class="field"><span>Restore from a backup file</span>
+    <input id="bk-file" class="bk-file" type="file" accept="application/json,.json" onchange="A.importPick(event)">
+  </label>
+  <div id="bk-msg"></div>
+  <p class="hint">Restoring replaces everything currently on this device with the contents of the file.</p>
+</div>
+
 <!-- report -->
 <div class="sheet" id="sheet-report">
   <div class="handle"></div>
@@ -459,6 +487,7 @@ var IC = {
   history: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v6h6"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 9"/><polyline points="12 7 12 12 15 15"/></svg>',
   receipt: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2.5-1.5L9 22l2.5-1.5L14 22l2.5-1.5L19 22V2l-2.5 1.5L14 2l-2.5 1.5L9 2 6.5 3.5 4 2z"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>',
   listplus: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="13" y2="6"/><line x1="3" y1="12" x2="13" y2="12"/><line x1="3" y1="18" x2="9" y2="18"/><line x1="18" y1="9" x2="18" y2="15"/><line x1="15" y1="12" x2="21" y2="12"/></svg>',
+  save: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>',
   cash: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg>',
   chart: '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="6" y1="20" x2="6" y2="13"/><line x1="12" y1="20" x2="12" y2="5"/><line x1="18" y1="20" x2="18" y2="10"/></svg>',
   pencil: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>',
@@ -521,6 +550,7 @@ var menuOpen = false;
 var saveMsg = '';
 var sheetTid = null;
 var editCtx = null;
+var pendingImport = null;
 var viewing = null; /* null = current month, otherwise archive entry id */
 
 function save() {
@@ -627,6 +657,7 @@ function renderHero(m, ro) {
         '<button onclick="A.openHistory()">' + IC.history + ' Past months' +
           (data.archive.length ? ' (' + data.archive.length + ')' : '') + '</button>' +
         '<button onclick="A.openMonth()">' + IC.refresh + ' Start new month</button>' +
+        '<button onclick="A.openBackup()">' + IC.save + ' Backup &amp; restore</button>' +
       '</div>';
   }
 
@@ -1086,6 +1117,64 @@ var A = {
     });
     expanded = {};
     save(); render(); A.closeSheets();
+  },
+
+  openBackup: function () {
+    menuOpen = false; render();
+    pendingImport = null;
+    var f = document.getElementById('bk-file'); if (f) f.value = '';
+    document.getElementById('bk-msg').innerHTML = '';
+    openSheet('sheet-backup');
+  },
+  exportData: function () {
+    var stamp = new Date().toISOString().slice(0, 10);
+    var text = JSON.stringify(data, null, 2);
+    var name = 'budget-backup-' + stamp + '.json';
+    var a = document.createElement('a');
+    a.download = name;
+    try {
+      a.href = URL.createObjectURL(new Blob([text], { type: 'application/json' }));
+    } catch (e) {
+      a.href = 'data:application/json;charset=utf-8,' + encodeURIComponent(text);
+    }
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    document.getElementById('bk-msg').innerHTML =
+      '<div class="bk-msg">Saved as <b>' + esc(name) + '</b> — check your Downloads folder.</div>';
+  },
+  importPick: function (ev) {
+    var file = ev && ev.target && ev.target.files && ev.target.files[0];
+    if (!file) return;
+    var r = new FileReader();
+    r.onload = function () { A.importText(String(r.result)); };
+    r.onerror = function () {
+      document.getElementById('bk-msg').innerHTML = '<div class="bk-msg">Could not read that file.</div>';
+    };
+    r.readAsText(file);
+  },
+  importText: function (text) {
+    var msg = document.getElementById('bk-msg');
+    var obj = null;
+    try { obj = JSON.parse(text); } catch (e) { obj = null; }
+    if (obj && obj.tasks && obj.month && !obj.current) obj = { theme: null, current: obj, archive: [] };
+    if (!obj || !obj.current || !Array.isArray(obj.current.tasks)) {
+      msg.innerHTML = '<div class="bk-msg">That does not look like a budget backup file.</div>';
+      return false;
+    }
+    if (!Array.isArray(obj.archive)) obj.archive = [];
+    pendingImport = obj;
+    msg.innerHTML = '<div class="bk-msg">Found <b>' + esc(obj.current.month) + '</b> with ' +
+      obj.current.tasks.length + ' items and ' + obj.archive.length + ' saved month' +
+      (obj.archive.length === 1 ? '' : 's') + '.</div>' +
+      '<button class="btn-submit" onclick="A.importConfirm()">Replace data on this device</button>';
+    return true;
+  },
+  importConfirm: function () {
+    if (!pendingImport) return;
+    data = pendingImport;
+    pendingImport = null;
+    viewing = null; expanded = {}; armed = null;
+    save(); applyTheme(); render();
+    A.closeSheets();
   },
 
   openReport: function () {
