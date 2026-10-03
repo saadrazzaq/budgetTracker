@@ -5,7 +5,8 @@ A mobile-friendly monthly budget tracker — a single-page PWA with no build ste
 **Features**
 
 - Checklist budget: tick items as payments are made; items with subtasks (e.g. Fees → school, Qari Sahib, Sipara) complete automatically when every subtask is checked
-- Record the **actual amount paid** when it differs from the budget; over/under is tracked per item and in the totals
+- Record **every payment** against an item or subtask — part payments add up, the item ticks itself once the budget is covered, and over/under budget is tracked per item and in the totals
+- Header shows what **should still be in the account** (budget less everything actually paid and all extras), split into still-to-pay and saved
 - Extra-expense logging against any category, with a running "extra spent" total
 - Report view: budget vs paid vs difference per item, extras breakdown and out-of-pocket total — for the current month and any saved month
 - Month archiving: starting a new month saves the finished month exactly as it was — checkmarks, extras and totals — browsable any time in a view-only history
